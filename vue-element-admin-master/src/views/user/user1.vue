@@ -1,5 +1,5 @@
 <template>
-    <!--  eslint-disable  -->
+  <!--  eslint-disable  -->
    <div>
    <el-form  :model="tableData" label-width="80px" inline="true" size="small">
      <el-form-item label="用户名称">
@@ -141,84 +141,83 @@
 
 </div>
  </template>
- 
- 
- <script>
- export default {
-   name: 'user',
-   data() {
-     return {
-       tableData:{
-           name:'',
-           mincreatetime:'',
-           maxcreattime:'',
-           list:[{
-               id:1,
-               userName:'张三',
-               trueName:'222',
-               roleList:[],
-               status:true,
-           }],
-           selection:'',
-           pageNum:1,
-           pagesize:10,
-           total:1,
-       },
-       userEditForm:{
-       id:'',
-       userName:'',
-       trueName:'',
-       password:'',
-       email:'',
-       gender:'',
-       address:'',
-       introduction:'',
-       phone:'',
-       roleIds:[],
-   },
-       userEditDialogVisible: false,
-       allRoles:[]
-     }
-   },
-   methods: {
-   getUserList() {
-     // 查询用户列表
-   },
-   resetQuery() {
-     // 重置查询条件
-   },
-   handleCreateUser() {
-     // 处理新增用户
-     this.userEditDialogVisible = true
-   },
-   handleDelete(ids) {
-     // 处理删除用户
-   },
-   handleImport() {
-     // 处理导入用户
-   },
-   handlesortchange({ prop, order }) {
-     // 处理表格排序
-   },
-   handleSwitch(row) {
-     // 处理状态开关的切换
-   },
-   handleEdit(row) {
-     // 处理编辑用户
-   },
-   handleAvatarChange(file) {
-     // 处理头像上传
-   },
-   resetUploadData() {
-     // 重置头像上传数据
-   },
-   addQrUpdateUser() {
-     // 添加或更新用户
-   },
- },
- }
- </script>
- 
+
+<script>
+export default {
+  name: 'User',
+  data() {
+    return {
+      tableData: {
+        name: '',
+        mincreatetime: '',
+        maxcreattime: '',
+        list: [{
+          id: 1,
+          userName: '张三',
+          trueName: '222',
+          roleList: [],
+          status: true
+        }],
+        selection: '',
+        pageNum: 1,
+        pagesize: 10,
+        total: 1
+      },
+      userEditForm: {
+        id: '',
+        userName: '',
+        trueName: '',
+        password: '',
+        email: '',
+        gender: '',
+        address: '',
+        introduction: '',
+        phone: '',
+        roleIds: []
+      },
+      userEditDialogVisible: false,
+      allRoles: []
+    }
+  },
+  methods: {
+    getUserList() {
+      // 查询用户列表
+    },
+    resetQuery() {
+      // 重置查询条件
+    },
+    handleCreateUser() {
+      // 处理新增用户
+      this.userEditDialogVisible = true
+    },
+    handleDelete(ids) {
+      // 处理删除用户
+    },
+    handleImport() {
+      // 处理导入用户
+    },
+    handlesortchange({ prop, order }) {
+      // 处理表格排序
+    },
+    handleSwitch(row) {
+      // 处理状态开关的切换
+    },
+    handleEdit(row) {
+      // 处理编辑用户
+    },
+    handleAvatarChange(file) {
+      // 处理头像上传
+    },
+    resetUploadData() {
+      // 重置头像上传数据
+    },
+    addQrUpdateUser() {
+      // 添加或更新用户
+    }
+  }
+}
+</script>
+
  <style>
 .datepicker{
    margin-right: 10px;

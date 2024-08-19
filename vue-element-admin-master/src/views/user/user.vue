@@ -99,7 +99,7 @@
         <el-form-item label="电话">
           <el-input v-model="userEditForm.phone" />
         </el-form-item>
-</el-form>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="userEditDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addOrUpdateUser">确 定</el-button>
@@ -109,188 +109,184 @@
   </div>
 </template>
 
-
 <script>
-import axios from 'axios'; // 使用 axios 进行 HTTP 请求
+import axios from 'axios' // 使用 axios 进行 HTTP 请求
 
 export default {
- name: 'user',
- data() {
-   return {
-     tableData:{
+  name: 'User',
+  data() {
+    return {
+      tableData: {
         userName: '',
-         list:[{
-             id:1,
-             userName:'张三',
-             trueName:'222',
-             email:'',
-         }],
-         selection:'',
-         pageNum:1,
-         pagesize:10,
-         total:1,
-     },
-     userEditForm:{
-     id:'',
-     userName:'',
-     trueName:'',
-     password:'',
-     email:'',
-     gender:'',
-     address:'',
-     introduction:'',
-     phone:'',
- },
-     userEditDialogVisible: false,
-   }
- },
-
-
-
- methods: {
-  handleCreateUser() {
-     // 处理新增用户
-     this.userEditDialogVisible = true
-   },
-   getUserList(sortBy = 'id', sortOrder = 'asc') {
-    console.log(`Fetching data with sortBy: ${sortBy} and sortOrder: ${sortOrder}`); // 调试输出
-    axios.get('http://localhost:8080/users', {
-      params: {
-        userName: this.tableData.userName || '', // 当用户名为空时传递空字符串
-        pageNum: this.tableData.pageNum,
-        pageSize: this.tableData.pageSize,
-        sortBy: "id", // 排序字段
-        sortOrder: sortOrder // 排序方式
-      }
-    })
-    .then(response => {
-      this.tableData.list = response.data.content;
-      this.tableData.total = response.data.totalElements;
-    })
-    .catch(error => {
-      this.$message.error('获取用户列表失败');
-    });
-  },
-
-  resetQuery() {
-    this.tableData.userName = '';
-    this.tableData.pageNum = 1; // 重置页码为 1
-    this.tableData.pageSize = 10; // 重置每页条数
-    this.getUserList(); // 重置后重新加载用户列表
-  },
-  handleSortChange({ column, prop = 'id', order }) {
-    // 处理排序变化
-    console.log('Column:', column);
-  console.log('Prop:', prop);
-  console.log('Order:', order);
-    const sortBy = prop; // 排序字段
-    const sortOrder = order === 'ascending' ? 'asc' : 'desc'; // 排序方式
-    this.getUserList(sortBy, sortOrder); // 重新获取用户列表
-  },
-addOrUpdateUser() {
-    if (this.userEditForm.id) {
-      // 如果存在 id，执行更新操作
-      this.updateUser();
-    } else {
-      // 不存在 id，执行新增操作
-      this.createUser();
+        list: [{
+          id: 1,
+          userName: '张三',
+          trueName: '222',
+          email: ''
+        }],
+        selection: '',
+        pageNum: 1,
+        pagesize: 10,
+        total: 1
+      },
+      userEditForm: {
+        id: '',
+        userName: '',
+        trueName: '',
+        password: '',
+        email: '',
+        gender: '',
+        address: '',
+        introduction: '',
+        phone: ''
+      },
+      userEditDialogVisible: false
     }
-  },
-  createUser() {
-    this.$refs.userEditForm.validate(valid => {
-      if (valid) {
-        // 通过 axios 向后端发送 POST 请求
-        axios.post('http://localhost:8080/users', this.userEditForm)
-          .then(response => {
-            this.$message.success('用户新增成功');
-            this.userEditDialogVisible = false;
-            this.getUserList(); // 刷新用户列表
-          })
-          .catch(error => {
-            this.$message.error('新增用户失败');
-          });
-      }
-    });
-  },
-  updateUser() {
-    axios.put(`http://localhost:8080/users/${this.userEditForm.id}`, this.userEditForm)
-      .then(response => {
-        this.$message.success('用户更新成功');
-        this.userEditDialogVisible = false;
-        this.getUserList(); // 刷新用户列表
-      })
-      .catch(error => {
-        this.$message.error('更新用户失败');
-      });
-  },
-    // 点击编辑按钮时触发
-    handleEdit(row) {
-    // 将当前用户数据填充到表单中
-    this.userEditForm = { ...row };
-    this.userEditDialogVisible = true;
-  },
-
-   // 删除用户
-   handleDelete(ids) {
-    this.$confirm('确定删除选中的用户吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      axios.delete(`http://localhost:8080/users/${ids.join(',')}`)
-        .then(response => {
-          this.$message.success('用户删除成功');
-          this.getUserList(); // 刷新用户列表
-        })
-        .catch(error => {
-          this.$message.error('删除用户失败');
-        });
-    }).catch(() => {
-      // 用户取消删除操作
-    });
-  },
- // 批量删除
- handleBatchDelete() {
-    if (this.tableData.selection.length === 0) {
-      this.$message.warning('请至少选择一个用户进行删除');
-      return;
-    }
-
-    // 提取所有选中用户的 ID
-    const ids = this.tableData.selection.map(user => user.id);
-
-    this.$confirm('确定删除选中的用户吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      // 使用 Promise.all 并行执行多个删除请求
-      const deletePromises = ids.map(id => {
-        return axios.delete(`http://localhost:8080/users/${id}`);
-      });
-
-      // 等待所有删除请求完成后刷新列表
-      Promise.all(deletePromises)
-        .then(() => {
-          this.$message.success('批量删除成功');
-          this.getUserList(); // 刷新用户列表
-        })
-        .catch(() => {
-          this.$message.error('批量删除部分或全部失败');
-        });
-    }).catch(() => {
-      // 用户取消删除操作
-    });
-  },
-
   },
   mounted() {
     // 页面加载时调用 getUserById 方法，假设获取 ID 为 1 的用户信息
-    this.getUserList();
+    this.getUserList()
   },
 
+  methods: {
+    handleCreateUser() {
+      // 处理新增用户
+      this.userEditDialogVisible = true
+    },
+    getUserList(sortBy = 'id', sortOrder = 'asc') {
+      console.log(`Fetching data with sortBy: ${sortBy} and sortOrder: ${sortOrder}`) // 调试输出
+      axios.get('http://localhost:8080/users', {
+        params: {
+          userName: this.tableData.userName || '', // 当用户名为空时传递空字符串
+          pageNum: this.tableData.pageNum,
+          pageSize: this.tableData.pageSize,
+          sortBy: 'id', // 排序字段
+          sortOrder: sortOrder // 排序方式
+        }
+      })
+        .then(response => {
+          this.tableData.list = response.data.content
+          this.tableData.total = response.data.totalElements
+        })
+        .catch(error => {
+          this.$message.error('获取用户列表失败')
+        })
+    },
 
-};
+    resetQuery() {
+      this.tableData.userName = ''
+      this.tableData.pageNum = 1 // 重置页码为 1
+      this.tableData.pageSize = 10 // 重置每页条数
+      this.getUserList() // 重置后重新加载用户列表
+    },
+    handleSortChange({ column, prop = 'id', order }) {
+    // 处理排序变化
+      console.log('Column:', column)
+      console.log('Prop:', prop)
+      console.log('Order:', order)
+      const sortBy = prop // 排序字段
+      const sortOrder = order === 'ascending' ? 'asc' : 'desc' // 排序方式
+      this.getUserList(sortBy, sortOrder) // 重新获取用户列表
+    },
+    addOrUpdateUser() {
+      if (this.userEditForm.id) {
+      // 如果存在 id，执行更新操作
+        this.updateUser()
+      } else {
+      // 不存在 id，执行新增操作
+        this.createUser()
+      }
+    },
+    createUser() {
+      this.$refs.userEditForm.validate(valid => {
+        if (valid) {
+        // 通过 axios 向后端发送 POST 请求
+          axios.post('http://localhost:8080/users', this.userEditForm)
+            .then(response => {
+              this.$message.success('用户新增成功')
+              this.userEditDialogVisible = false
+              this.getUserList() // 刷新用户列表
+            })
+            .catch(error => {
+              this.$message.error('新增用户失败')
+            })
+        }
+      })
+    },
+    updateUser() {
+      axios.put(`http://localhost:8080/users/${this.userEditForm.id}`, this.userEditForm)
+        .then(response => {
+          this.$message.success('用户更新成功')
+          this.userEditDialogVisible = false
+          this.getUserList() // 刷新用户列表
+        })
+        .catch(error => {
+          this.$message.error('更新用户失败')
+        })
+    },
+    // 点击编辑按钮时触发
+    handleEdit(row) {
+    // 将当前用户数据填充到表单中
+      this.userEditForm = { ...row }
+      this.userEditDialogVisible = true
+    },
+
+    // 删除用户
+    handleDelete(ids) {
+      this.$confirm('确定删除选中的用户吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        axios.delete(`http://localhost:8080/users/${ids.join(',')}`)
+          .then(response => {
+            this.$message.success('用户删除成功')
+            this.getUserList() // 刷新用户列表
+          })
+          .catch(error => {
+            this.$message.error('删除用户失败')
+          })
+      }).catch(() => {
+      // 用户取消删除操作
+      })
+    },
+    // 批量删除
+    handleBatchDelete() {
+      if (this.tableData.selection.length === 0) {
+        this.$message.warning('请至少选择一个用户进行删除')
+        return
+      }
+
+      // 提取所有选中用户的 ID
+      const ids = this.tableData.selection.map(user => user.id)
+
+      this.$confirm('确定删除选中的用户吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+      // 使用 Promise.all 并行执行多个删除请求
+        const deletePromises = ids.map(id => {
+          return axios.delete(`http://localhost:8080/users/${id}`)
+        })
+
+        // 等待所有删除请求完成后刷新列表
+        Promise.all(deletePromises)
+          .then(() => {
+            this.$message.success('批量删除成功')
+            this.getUserList() // 刷新用户列表
+          })
+          .catch(() => {
+            this.$message.error('批量删除部分或全部失败')
+          })
+      }).catch(() => {
+      // 用户取消删除操作
+      })
+    }
+
+  }
+
+}
 
 </script>
 
